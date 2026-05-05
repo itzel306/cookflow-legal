@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CookFlow</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FBF8F2;
+      color: #3D2817;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .logo { font-size: 36px; font-weight: 800; color: #D67A5C; letter-spacing: -1px; margin-bottom: 10px; }
+    .logo span { color: #3D2817; }
+    .tagline { font-size: 16px; color: #8B6B52; margin-bottom: 48px; }
+    .links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .link-btn {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid rgba(61,40,23,0.12);
+      border-radius: 14px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #5C3D26;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .link-btn:hover { background: #FEF3EE; }
+    footer { margin-top: 48px; font-size: 12px; color: #8B6B52; }
+  </style>
+</head>
+<body>
+  <div class="logo">Cook<span>Flow</span></div>
+  <p class="tagline">냉장고 속 재료로 오늘 뭐 먹을지 고민하지 마세요</p>
+  <div class="links">
+    <a class="link-btn" href="privacy.html">개인정보처리방침</a>
+    <a class="link-btn" href="terms.html">이용약관</a>
+    <a class="link-btn" href="mailto:mononok306@gmail.com">문의하기</a>
+  </div>
+  <footer>&copy; 2025 CookFlow</footer>
+</body>
+</html>
