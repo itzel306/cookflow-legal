@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CookFlow Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FBF8F2;
+      color: #3D2817;
+      min-height: 100vh;
+    }
+
+    /* ── 로그인 화면 ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: #fff;
+      border: 1px solid rgba(61,40,23,0.1);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 24px rgba(61,40,23,0.08);
+    }
+    .login-logo { font-size: 24px; font-weight: 800; color: #D67A5C; margin-bottom: 6px; }
+    .login-sub { font-size: 13px; color: #8B6B52; margin-bottom: 28px; }
+    .login-label { font-size: 12px; font-weight: 600; color: #5C3D26; margin-bottom: 6px; display: block; }
+    .login-input {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid rgba(61,40,23,0.15);
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      background: #FEFAF5;
+      color: #3D2817;
+      margin-bottom: 16px;
+    }
+    .login-input:focus { border-color: #D67A5C; }
+    .login-btn {
+      width: 100%; padding: 13px;
+      background: #D67A5C; color: #fff;
+      border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+    }
+    .login-btn:hover { background: #C4837A; }
+    .login-err { font-size: 13px; color: #C0392B; margin-top: 10px; text-align: center; min-height: 18px; }
+
+    /* ── 대시보드 ── */
+    #dashboard { display: none; }
+    .top-bar {
+      background: #fff;
+      border-bottom: 1px solid rgba(61,40,23,0.08);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .top-logo { font-size: 18px; font-weight: 800; color: #D67A5C; }
+    .top-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      background: #FEF3EE; color: #D67A5C;
+      border: 1px solid #F0C5A8;
+      border-radius: 6px; padding: 3px 8px;
+    }
+    .logout-btn {
+      font-size: 12px; color: #8B6B52; cursor: pointer;
+      background: none; border: none;
+    }
+    .logout-btn:hover { color: #D67A5C; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+      color: #8B6B52; text-transform: uppercase;
+      margin-bottom: 12px; margin-top: 32px;
+    }
+
+    /* 통계 카드 */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .stat-card {
+      background: #fff; border: 1px solid rgba(61,40,23,0.08);
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(61,40,23,0.04);
+    }
+    .stat-label { font-size: 12px; color: #8B6B52; margin-bottom: 6px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: #3D2817; }
+    .stat-sub { font-size: 11px; color: #8B6B52; margin-top: 4px; }
+
+    /* 구독 현황 */
+    .tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .tier-card {
+      background: #fff; border: 1px solid rgba(61,40,23,0.08);
+      border-radius: 14px; padding: 16px;
+      text-align: center;
+    }
+    .tier-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #8B6B52; margin-bottom: 6px; }
+    .tier-count { font-size: 24px; font-weight: 800; color: #3D2817; }
+    .tier-card.pro .tier-name { color: #D67A5C; }
+    .tier-card.premium .tier-name { color: #C29B57; }
+    .tier-card.family .tier-name { color: #7A8A6C; }
+
+    /* 회원 테이블 */
+    .table-wrap {
+      background: #fff; border: 1px solid rgba(61,40,23,0.08);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(61,40,23,0.04);
+    }
+    .table-toolbar {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(61,40,23,0.06);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .search-input {
+      flex: 1; padding: 8px 12px;
+      border: 1.5px solid rgba(61,40,23,0.12);
+      border-radius: 8px; font-size: 13px;
+      outline: none; background: #FEFAF5; color: #3D2817;
+    }
+    .search-input:focus { border-color: #D67A5C; }
+    .filter-select {
+      padding: 8px 10px;
+      border: 1.5px solid rgba(61,40,23,0.12);
+      border-radius: 8px; font-size: 13px;
+      outline: none; background: #FEFAF5; color: #3D2817;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 11px 14px;
+      text-align: left; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.5px; color: #8B6B52;
+      background: #FAF7F3;
+      border-bottom: 1px solid rgba(61,40,23,0.08);
+      cursor: pointer; user-select: none;
+    }
+    thead th:hover { color: #D67A5C; }
+    tbody tr { border-bottom: 1px solid rgba(61,40,23,0.05); }
+    tbody tr:hover { background: #FEF8F3; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 11px 14px; font-size: 13px; color: #3D2817; }
+    .td-muted { color: #8B6B52; }
+    .tier-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      padding: 2px 7px; border-radius: 5px;
+    }
+    .tier-free    { background: #F0EBE3; color: #8B6B52; }
+    .tier-pro     { background: #FEF3EE; color: #D67A5C; }
+    .tier-premium { background: #FEF9E7; color: #C29B57; }
+    .tier-family  { background: #E8F0E3; color: #5A7A50; }
+
+    .loading { text-align: center; padding: 48px; color: #8B6B52; }
+    .empty { text-align: center; padding: 40px; color: #8B6B52; font-size: 14px; }
+
+    @media (max-width: 600px) {
+      .tier-grid { grid-template-columns: repeat(2, 1fr); }
+      .hide-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 로그인 화면 ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">CookFlow</div>
+    <div class="login-sub">운영자 전용 페이지</div>
+    <label class="login-label">비밀번호</label>
+    <input id="pw-input" class="login-input" type="password" placeholder="관리자 비밀번호 입력" />
+    <button class="login-btn" onclick="doLogin()">접속하기</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ── 대시보드 ── -->
+<div id="dashboard">
+  <div class="top-bar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="top-logo">CookFlow</span>
+      <span class="top-badge">ADMIN</span>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <div class="container">
+
+    <!-- 전체 통계 -->
+    <div class="section-title">전체 통계</div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="loading">불러오는 중...</div>
+    </div>
+
+    <!-- 구독 현황 -->
+    <div class="section-title">구독 현황</div>
+    <div class="tier-grid" id="tier-grid">
+      <div class="loading">불러오는 중...</div>
+    </div>
+
+    <!-- 회원 목록 -->
+    <div class="section-title">회원 목록</div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input id="search-input" class="search-input" type="text" placeholder="이름 또는 이메일 검색..." oninput="renderTable()" />
+        <select id="tier-filter" class="filter-select" onchange="renderTable()">
+          <option value="">전체 플랜</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="premium">Premium</option>
+          <option value="family">Family</option>
+        </select>
+      </div>
+      <div id="table-container">
+        <div class="loading">불러오는 중...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL   = 'https://vmyejtclylnimyvwtdvt.supabase.co';
+  const FUNCTION_URL   = `${SUPABASE_URL}/functions/v1/admin-stats`;
+  const ANON_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZteWVqdGNseWxuaW15dnd0ZHZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3Nzk2ODQsImV4cCI6MjA5MjM1NTY4NH0.yl2Sg1hIoERMTT8N-v0kp3ajOv0-XzL2YK6jJrezPHc';
+
+  let adminPassword = '';
+  let allUsers = [];
+  let sortKey = 'created_at';
+  let sortAsc = false;
+
+  // ── 로그인 ──
+  async function doLogin() {
+    const pw = document.getElementById('pw-input').value.trim();
+    if (!pw) return;
+    document.getElementById('login-err').textContent = '';
+
+    try {
+      const res = await callAPI('summary', pw);
+      if (res.error) {
+        document.getElementById('login-err').textContent = res.error;
+        return;
+      }
+      adminPassword = pw;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      renderSummary(res);
+      loadUsers();
+    } catch (e) {
+      document.getElementById('login-err').textContent = '서버 연결에 실패했어요.';
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function doLogout() {
+    adminPassword = '';
+    allUsers = [];
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pw-input').value = '';
+  }
+
+  // ── API 호출 ──
+  async function callAPI(action, pw, extra = {}) {
+    const res = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': ANON_KEY,
+      },
+      body: JSON.stringify({ password: pw ?? adminPassword, action, ...extra }),
+    });
+    return res.json();
+  }
+
+  // ── 통계 렌더 ──
+  function renderSummary(data) {
+    const { totalUsers, totalRecipes, totalIngredients, tierCount } = data;
+
+    document.getElementById('stat-grid').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">전체 회원</div>
+        <div class="stat-value">${totalUsers?.toLocaleString() ?? '-'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">저장된 레시피</div>
+        <div class="stat-value">${totalRecipes?.toLocaleString() ?? '-'}</div>
+        <div class="stat-sub">평균 ${totalUsers ? (totalRecipes / totalUsers).toFixed(1) : '-'}개 / 명</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">등록된 재료</div>
+        <div class="stat-value">${totalIngredients?.toLocaleString() ?? '-'}</div>
+        <div class="stat-sub">평균 ${totalUsers ? (totalIngredients / totalUsers).toFixed(1) : '-'}개 / 명</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">유료 전환율</div>
+        <div class="stat-value">${totalUsers ? (((tierCount.pro + tierCount.premium + tierCount.family) / totalUsers) * 100).toFixed(1) : '-'}%</div>
+        <div class="stat-sub">Pro + Premium + Family</div>
+      </div>
+    `;
+
+    document.getElementById('tier-grid').innerHTML = `
+      <div class="tier-card">
+        <div class="tier-name">FREE</div>
+        <div class="tier-count">${tierCount.free ?? 0}</div>
+      </div>
+      <div class="tier-card pro">
+        <div class="tier-name">PRO</div>
+        <div class="tier-count">${tierCount.pro ?? 0}</div>
+      </div>
+      <div class="tier-card premium">
+        <div class="tier-name">PREMIUM</div>
+        <div class="tier-count">${tierCount.premium ?? 0}</div>
+      </div>
+      <div class="tier-card family">
+        <div class="tier-name">FAMILY</div>
+        <div class="tier-count">${tierCount.family ?? 0}</div>
+      </div>
+    `;
+  }
+
+  // ── 회원 목록 ──
+  async function loadUsers() {
+    document.getElementById('table-container').innerHTML = '<div class="loading">회원 목록 불러오는 중...</div>';
+    const data = await callAPI('users');
+    if (data.error) {
+      document.getElementById('table-container').innerHTML = `<div class="empty">${data.error}</div>`;
+      return;
+    }
+    allUsers = data.users ?? [];
+    renderTable();
+  }
+
+  function renderTable() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    const tierFilter = document.getElementById('tier-filter').value;
+
+    let filtered = allUsers.filter((u) => {
+      const matchSearch = !query ||
+        (u.name ?? '').toLowerCase().includes(query) ||
+        (u.email ?? '').toLowerCase().includes(query);
+      const matchTier = !tierFilter || u.subscription_tier === tierFilter;
+      return matchSearch && matchTier;
+    });
+
+    // 정렬
+    filtered.sort((a, b) => {
+      let va = a[sortKey] ?? '';
+      let vb = b[sortKey] ?? '';
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+
+    if (filtered.length === 0) {
+      document.getElementById('table-container').innerHTML = '<div class="empty">검색 결과가 없어요.</div>';
+      return;
+    }
+
+    const rows = filtered.map((u) => `
+      <tr>
+        <td>${u.name ?? '<span class="td-muted">-</span>'}</td>
+        <td class="hide-mobile">${u.email ?? '<span class="td-muted">-</span>'}</td>
+        <td><span class="tier-badge tier-${u.subscription_tier ?? 'free'}">${(u.subscription_tier ?? 'free').toUpperCase()}</span></td>
+        <td>${u.recipe_count}</td>
+        <td>${u.ingredient_count}</td>
+        <td class="td-muted hide-mobile">${u.created_at ? formatDate(u.created_at) : '-'}</td>
+        <td class="td-muted hide-mobile">${u.updated_at ? formatDate(u.updated_at) : '-'}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('table-container').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th onclick="setSort('name')">이름 ${sortIcon('name')}</th>
+            <th class="hide-mobile" onclick="setSort('email')">이메일 ${sortIcon('email')}</th>
+            <th onclick="setSort('subscription_tier')">플랜 ${sortIcon('subscription_tier')}</th>
+            <th onclick="setSort('recipe_count')">레시피 ${sortIcon('recipe_count')}</th>
+            <th onclick="setSort('ingredient_count')">재료 ${sortIcon('ingredient_count')}</th>
+            <th class="hide-mobile" onclick="setSort('created_at')">가입일 ${sortIcon('created_at')}</th>
+            <th class="hide-mobile" onclick="setSort('updated_at')">최근활동 ${sortIcon('updated_at')}</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function setSort(key) {
+    if (sortKey === key) sortAsc = !sortAsc;
+    else { sortKey = key; sortAsc = false; }
+    renderTable();
+  }
+
+  function sortIcon(key) {
+    if (sortKey !== key) return '<span style="opacity:0.3">↕</span>';
+    return sortAsc ? '↑' : '↓';
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+</script>
+
+</body>
+</html>
