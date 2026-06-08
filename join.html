@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CookFlow 팀 초대</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FBF8F2;
+      color: #3D2817;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      border: 1px solid rgba(61,40,23,0.08);
+      padding: 36px 28px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(61,40,23,0.06);
+    }
+    .icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #3D2817;
+      margin-bottom: 8px;
+    }
+    .desc {
+      font-size: 14px;
+      color: #8B6B52;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 10px;
+    }
+    .btn-primary {
+      background: #E89B82;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(232,155,130,0.35);
+    }
+    .btn-outline {
+      background: transparent;
+      color: #8B6B52;
+      border: 1.5px solid rgba(61,40,23,0.15);
+    }
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 20px;
+    }
+    .status {
+      font-size: 13px;
+      color: #B89A82;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🍀</div>
+    <div class="title">팀에 초대받았어요!</div>
+    <p class="desc">CookFlow에서 냉장고와 식단표를<br>함께 관리해보세요.</p>
+
+    <button class="btn btn-primary" id="openAppBtn" onclick="openApp()">앱에서 열기</button>
+    <a class="btn btn-outline" id="storeBtn" href="#" target="_blank">CookFlow 설치하기</a>
+
+    <p class="status" id="status"></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    // 플랫폼 감지
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    const IOS_STORE = 'https://apps.apple.com/kr/app/cookflow/id6764066921';
+    const ANDROID_STORE = 'https://play.google.com/store/apps/details?id=com.dagyeom.cookflow';
+
+    // 스토어 링크 설정
+    const storeBtn = document.getElementById('storeBtn');
+    if (isAndroid) {
+      storeBtn.href = ANDROID_STORE;
+      storeBtn.textContent = 'Google Play에서 설치';
+    } else {
+      storeBtn.href = IOS_STORE;
+      storeBtn.textContent = 'App Store에서 설치';
+    }
+
+    function openApp() {
+      if (!token) {
+        document.getElementById('status').textContent = '유효하지 않은 초대 링크예요.';
+        return;
+      }
+
+      const deepLink = 'cookflow://join?token=' + encodeURIComponent(token);
+      const storeUrl = isAndroid ? ANDROID_STORE : IOS_STORE;
+
+      // 앱 열기 시도
+      window.location.href = deepLink;
+
+      // 2초 후에도 앱이 안 열리면 스토어로 이동
+      setTimeout(() => {
+        document.getElementById('status').textContent = '앱이 없으신가요? 아래 버튼으로 설치해보세요.';
+        if (isIOS || isAndroid) {
+          window.location.href = storeUrl;
+        }
+      }, 2000);
+    }
+
+    // 페이지 로드 시 자동으로 앱 열기 시도
+    window.addEventListener('load', () => {
+      if (token) {
+        setTimeout(openApp, 500);
+      }
+    });
+  </script>
+</body>
+</html>
